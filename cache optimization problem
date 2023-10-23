@@ -1,0 +1,64 @@
+import numpy as np
+import pandas as pd
+import time
+
+# Replace 'your_file.csv' with the path to your CSV file
+df = pd.read_csv('cache.csv')
+
+# Sample data: Popularity scores and sizes of content items
+popularity_scores = df.iloc[:, 1]
+content_sizes = df.iloc[:, 0]
+
+#BS1 = 2000000
+#BS2 = 2000000
+#BS3 = 2000000
+
+BS1 = 4000
+BS2 = 4000
+BS3 = 4000
+
+# List of cache capacities for different cache storages
+cache_capacities = [BS1, BS2, BS3]  # Add more capacities if needed
+
+start_time = time.time()  # Record the start time
+
+# Initialize variables to keep track of cached items and remaining cache capacity for each storage
+cached_items = [[] for _ in cache_capacities]
+remaining_capacities = cache_capacities.copy()
+
+# Create a list of (item_idx, popularity, size) tuples
+items_info = [(i, popularity_scores[i], content_sizes[i]) for i in range(len(popularity_scores))]
+
+# Sort items by a combination of popularity (descending) and size (ascending)
+sorted_items = sorted(items_info, key=lambda x: (-x[1], x[2]))
+
+# Store cached items' information
+cached_items_data = []
+
+# Cache content items based on both popularity and size for each cache storage
+for item_idx, popularity, item_size in sorted_items:
+    for i in range(len(cache_capacities)):
+        if item_size <= remaining_capacities[i] and item_idx not in cached_items[i]:
+            cached_items[i].append(item_idx)
+            remaining_capacities[i] -= item_size
+            cached_items_data.append([item_idx + 1, popularity_scores[item_idx], item_size, i + 1])
+            break  # Break the loop once cached in one storage
+
+end_time = time.time()  # Record the end time
+
+# Display the cached items and their popularity scores for each cache storage
+for i, cached_items_in_storage in enumerate(cached_items):
+    print(f"Cache Storage {i + 1}:")
+    for item_idx in cached_items_in_storage:
+        print(f"Item {item_idx + 1} (Popularity: {popularity_scores[item_idx]})")
+    total_popularity = sum(popularity_scores[item_idx] for item_idx in cached_items_in_storage)
+    print(f"Total Popularity in Storage {i + 1}: {total_popularity}")
+
+# Create a DataFrame to store cached items' information
+cached_items_df = pd.DataFrame(cached_items_data, columns=["Item Index", "Popularity Score", "Size", "Storage"])
+cached_items_df.to_csv("cached_items.csv", index=False)
+print("Cached items with their size and popularity values stored in 'cached_items.csv'")
+
+# Calculate and print the execution time
+execution_time = end_time - start_time
+print(execution_time)
