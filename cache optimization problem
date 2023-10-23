@@ -4,7 +4,7 @@ import time
 
 # Replace 'your_file.csv' with the path to your CSV file
 df = pd.read_csv('cache optimization problem.csv')   # dataset format is column 1 = content size, column 2 = content popularity rank
-
+#The data file is provided in the code. 
 # Sample data: Popularity scores and sizes of content items
 popularity_scores = df.iloc[:, 1]
 content_sizes = df.iloc[:, 0]
